@@ -1,20 +1,29 @@
-var config = require('./config');
 var twit = require('twit');
 
 var twitter = new twit({
-    consumer_key: config.twitter_consumer_key,
-    consumer_secret: config.twitter_secret_consumer_key,
-    access_token: config.twitter_token,
-    access_token_secret: config.twitter_secret_token,
-    timeout_ms: 60*100,
-  });
+  consumer_key: process.env.TWITTER_CONSUMER_KEY,
+  consumer_secret: process.env.TWITTER_CONSUMER_SECRET,
+  access_token: process.env.TWITTER_ACCESS_TOKEN,
+  access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
+  timeout_ms: 60 * 100,
+});
 
- module.exports = {
+module.exports = {
+  getTwit: function (res, req) {
+    twitter.get('search/tweets', {q: req.param.group}, (err, data, response) => {
+      if(err) {
+        return res.send({
+          ok:false,
+          message: err
+        });
+      }
 
-    getTwit: function(res, req){
-      twitter.get('search/tweets', {q: "nodejs"}, (err, data, response) => {
-      res.status(200).json(data);
-    // console.log(data);
-  })
+      res.send({
+        ok: true,
+        data: response
+      })
+    });
+  }
 }
-};
+
+
